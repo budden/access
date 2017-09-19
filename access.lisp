@@ -556,20 +556,20 @@
 
 (define-setf-expander access (place k
                               &key type test key
-                              &aux (new-val (gensym "NEW-VAL"))
-                              (place-store (gensym "PLACE"))
                               &environment env)
   "This should allow setting places through access"
   (declare (ignore env))
-  (values ()   ;; not using temp vars
-          ()   ;; not using temp vals
-          `(,new-val)
-          `(progn
-            (multiple-value-bind (,new-val ,place-store)
-                (set-access ,new-val ,place ,k :test ,test :type ,type :key ,key)
-              (setf ,place ,place-store)
-              ,new-val))
-          `(access ,place ,k :test ,test :type ,type :key ,key )))
+  (let ((new-val (gensym "NEW-VAL"))
+        (place-store (gensym "PLACE")))
+    (values ()   ;; not using temp vars
+            ()   ;; not using temp vals
+            `(,new-val)
+            `(progn
+              (multiple-value-bind (,new-val ,place-store)
+                  (set-access ,new-val ,place ,k :test ,test :type ,type :key ,key)
+                (setf ,place ,place-store)
+                ,new-val))
+            `(access ,place ,k :test ,test :type ,type :key ,key ))))
 
 (defun accesses (o &rest keys)
   "keep accessing keys on resulting objects
